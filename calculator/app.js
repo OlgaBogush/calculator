@@ -34,17 +34,52 @@ class Calculator {
 
   chooseOperation(operation) {
     if (this._currentValue === "" || isNaN(this._currentValue)) return
-    this._prevValue = this._currentValue
-    this._currentValue = ""
-    this._operation = operation
-    console.log(this._operation)
+    if (operation === "sqrt") {
+      this._operation = operation
+      this.calculate()
+    } else {
+      this._prevValue = this._currentValue
+      this._currentValue = ""
+      this._operation = operation
+      console.log(this._operation)
+    }
+  }
+
+  addSign() {
+    if(this._currentValue === "") return
+    this._currentValue = this._currentValue * -1
   }
 
   calculate() {
     let res
     switch (this._operation) {
       case "*":
-        res = this._prevValue * this._currentValue
+        res = Number(this._prevValue * this._currentValue)
+          .toString()
+          .substring(0, 15)
+        break
+      case "/":
+        res = Number(this._prevValue / this._currentValue)
+          .toString()
+          .substring(0, 15)
+        break
+      case "-":
+        res = Number(this._prevValue - this._currentValue)
+          .toString()
+          .substring(0, 15)
+        break
+      case "+":
+        res = Number(+this._prevValue + +this._currentValue)
+          .toString()
+          .substring(0, 15)
+        break
+      case "^":
+        res = Number(this._prevValue ** this._currentValue)
+          .toString()
+          .substring(0, 15)
+        break
+      case "sqrt":
+        res = Number(Math.sqrt(this._currentValue).toString().substring(0, 15))
         break
       default:
         return
@@ -59,6 +94,7 @@ const numberBtns = document.querySelectorAll("[data-number]")
 const operationBtns = document.querySelectorAll("[data-operation]")
 const prev = document.querySelector(".prev")
 const current = document.querySelector(".current")
+const dataSign = document.querySelector("[data-sign]")
 const equalsBtn = document.querySelector(".result")
 
 const calculator = new Calculator(prev, current)
@@ -79,9 +115,12 @@ operationBtns.forEach((item) => {
   })
 })
 
+dataSign.addEventListener("click", () => {
+  calculator.addSign()
+  calculator.updateDisplay()
+})
+
 equalsBtn.addEventListener("click", () => {
-  if(calculator._operation === "*") {
-    calculator.calculate()
-    calculator.updateDisplay()
-  }
+  calculator.calculate()
+  calculator.updateDisplay()
 })
