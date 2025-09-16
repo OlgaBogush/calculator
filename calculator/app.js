@@ -12,11 +12,30 @@ class Calculator {
     this._operation = undefined
   }
 
+  delete() {
+    this._currentValue = this._currentValue.slice(0, -1)
+  }
+
   appendNumber(number) {
+    if (isNaN(this._currentValue)) return
+    if (this.hasCalculated) {
+      this._currentValue = ""
+      this.hasCalculated = false
+    }
     this._currentValue += number
   }
 
   getDisplayNumber(number) {
+    const strNum = number.toString()
+    if (strNum !== "" && !isNaN(strNum)) {
+      if (strNum.includes(".")) {
+        return `${parseFloat(strNum.split(".")[0]).toLocaleString("ru")}.${
+          strNum.split(".")[1]
+        }`
+      } else {
+        return parseFloat(strNum).toLocaleString("ru")
+      }
+    }
     return number
   }
 
@@ -34,6 +53,9 @@ class Calculator {
 
   chooseOperation(operation) {
     if (this._currentValue === "" || isNaN(this._currentValue)) return
+    if (this._prevValue !== "") {
+      this.calculate()
+    }
     if (operation === "sqrt") {
       this._operation = operation
       this.calculate()
@@ -41,13 +63,27 @@ class Calculator {
       this._prevValue = this._currentValue
       this._currentValue = ""
       this._operation = operation
-      console.log(this._operation)
     }
   }
 
   addSign() {
-    if(this._currentValue === "") return
+    if (this._currentValue === "") return
     this._currentValue = this._currentValue * -1
+  }
+
+  addDecimal() {
+    if (
+      this._currentValue.toString().includes(".") ||
+      isNaN(this._currentValue)
+    ) {
+      return
+    }
+    if (this._currentValue !== "") {
+      this._currentValue = `${this._currentValue}.`
+    }
+    if (this._currentValue === "") {
+      this._currentValue = "0."
+    }
   }
 
   calculate() {
@@ -79,7 +115,13 @@ class Calculator {
           .substring(0, 15)
         break
       case "sqrt":
-        res = Number(Math.sqrt(this._currentValue).toString().substring(0, 15))
+        if (this._currentValue < 0) {
+          res = "Error"
+        } else {
+          res = Number(
+            Math.sqrt(this._currentValue).toString().substring(0, 15)
+          )
+        }
         break
       default:
         return
@@ -87,6 +129,7 @@ class Calculator {
     this._currentValue = res
     this._prevValue = ""
     this._operation = undefined
+    this.hasCalculated = true
   }
 }
 
@@ -94,7 +137,10 @@ const numberBtns = document.querySelectorAll("[data-number]")
 const operationBtns = document.querySelectorAll("[data-operation]")
 const prev = document.querySelector(".prev")
 const current = document.querySelector(".current")
-const dataSign = document.querySelector("[data-sign]")
+const acBtn = document.querySelector("[data-ac]")
+const delBtn = document.querySelector("[data-del]")
+const signBtn = document.querySelector("[data-sign]")
+const decimalBtn = document.querySelector("[data-decimal]")
 const equalsBtn = document.querySelector(".result")
 
 const calculator = new Calculator(prev, current)
@@ -115,8 +161,23 @@ operationBtns.forEach((item) => {
   })
 })
 
-dataSign.addEventListener("click", () => {
+acBtn.addEventListener("click", () => {
+  calculator.clear()
+  calculator.updateDisplay()
+})
+
+delBtn.addEventListener("click", () => {
+  calculator.delete()
+  calculator.updateDisplay()
+})
+
+signBtn.addEventListener("click", () => {
   calculator.addSign()
+  calculator.updateDisplay()
+})
+
+decimalBtn.addEventListener("click", () => {
+  calculator.addDecimal()
   calculator.updateDisplay()
 })
 
