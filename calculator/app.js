@@ -33,10 +33,25 @@ class Calculator {
   }
 
   chooseOperation(operation) {
-    if(this._currentValue === "" || isNaN(this._currentValue)) return
+    if (this._currentValue === "" || isNaN(this._currentValue)) return
     this._prevValue = this._currentValue
     this._currentValue = ""
     this._operation = operation
+    console.log(this._operation)
+  }
+
+  calculate() {
+    let res
+    switch (this._operation) {
+      case "*":
+        res = this._prevValue * this._currentValue
+        break
+      default:
+        return
+    }
+    this._currentValue = res
+    this._prevValue = ""
+    this._operation = undefined
   }
 }
 
@@ -65,5 +80,8 @@ operationBtns.forEach((item) => {
 })
 
 equalsBtn.addEventListener("click", () => {
-
+  if(calculator._operation === "*") {
+    calculator.calculate()
+    calculator.updateDisplay()
+  }
 })
